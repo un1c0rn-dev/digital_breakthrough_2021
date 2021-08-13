@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	ctxParser "unicorn.dev.web-scrap/CtxParser"
-	webScrapper "unicorn.dev.web-scrap/WebScrapper"
+	ctxParser "unicorn.dev.web-scrap/BlackBox"
+	webScrapper "unicorn.dev.web-scrap/MagicBox"
 )
 
 func main() {
