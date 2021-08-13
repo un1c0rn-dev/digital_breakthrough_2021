@@ -1,4 +1,4 @@
-package WebScrapper
+package MagicBox
 
 import (
 	"encoding/json"
