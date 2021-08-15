@@ -1,15 +1,21 @@
 package main
 
 import (
+	"fmt"
 	magicBox "unicorn.dev.web-scrap/MagicBox"
 )
 
 func main() {
 
-	magicBox.ReqString("qwe",
-		[]string{
-			"Moscow",
-		})
+	f := magicBox.SearchQuery("shitty golang", nil)
+	results := <-f
+
+	if results != nil {
+		for i, item := range results {
+			fmt.Printf("%d. %s - %s\n", i, item.Title, item.URL)
+		}
+	}
+
 	//startScrapper := flag.Bool("scrapper", false, "Start web scrapper process")
 	//startParser := flag.Bool("parser", false, "Start web parser process")
 
