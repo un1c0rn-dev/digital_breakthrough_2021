@@ -4,25 +4,14 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"unicorn.dev.web-scrap/MagicBox"
 )
 
-type ContextRequires struct {
-	Name string
-}
-
-type Site struct {
-}
-
-type MagickRequest struct {
-	ContextRequires ContextRequires
-	Site            Site
-}
-
-func Parse(magickRequestPipe chan MagickRequest) {
+func Parse(magickRequestPipe chan MagicBox.MagickRequest) {
 	for {
 		time.Sleep(time.Second)
 		fmt.Println("Parsing...")
-		var mr MagickRequest
+		var mr MagicBox.MagickRequest
 		mr = <-magickRequestPipe
 		if len(mr.ContextRequires.Name) != 0 {
 			fmt.Println(mr.ContextRequires.Name)
@@ -31,7 +20,7 @@ func Parse(magickRequestPipe chan MagickRequest) {
 	}
 }
 
-func StartParser(wg *sync.WaitGroup, magickRequestPipe chan MagickRequest) {
+func StartParser(wg *sync.WaitGroup, magickRequestPipe chan MagicBox.MagickRequest) {
 	defer wg.Done()
 	Parse(magickRequestPipe)
 }

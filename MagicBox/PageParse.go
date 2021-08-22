@@ -47,7 +47,7 @@ func parseTextElemNode(node *html.Node) (WebText, error) {
 	if len(webText.content) == 0 {
 		return WebText{}, &WebTextError{"Empty tag"}
 	}
-	fmt.Println("Parsed text: ", webText)
+	//fmt.Println("Parsed text: ", webText)
 	return webText, nil
 }
 
@@ -69,7 +69,7 @@ func parseLinkElemNode(node *html.Node) WebLink {
 		webLink.content = innerNode.Data
 	}
 
-	fmt.Println("Parsed link: ", webLink)
+	//fmt.Println("Parsed link: ", webLink)
 	return webLink
 }
 
@@ -110,7 +110,7 @@ func ParsePage(link string) (PageContent, error) {
 			}
 			break
 		case html.DocumentNode:
-			println("doc: ", node.Data)
+			//println("doc: ", node.Data)
 			break
 		}
 

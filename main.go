@@ -21,7 +21,7 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
-	magickRequestChan := make(chan BlackBox.MagickRequest)
+	magickRequestChan := make(chan MagicBox.MagickRequest)
 
 	if *startScrapper {
 		wg.Add(1)
