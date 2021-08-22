@@ -1,61 +1,25 @@
 package MagicBox
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 	"time"
-	ipc "unicorn.dev.web-scrap/Ipc"
+	"unicorn.dev.web-scrap/BlackBox"
 )
 
-func IpcComm() {
-	fmt.Println("Started web scrapper IPC routine.")
-
-	ack := 0
-	lastSeq := 0
-
+func Scrap(magickRequestPipe chan BlackBox.MagickRequest) {
 	for {
-		ack++
-
-		var ping = ipc.Ping{
-			Ack: ack,
-			Seq: lastSeq,
+		fmt.Println("Scrapping...")
+		mr := BlackBox.MagickRequest{
+			ContextRequires: BlackBox.ContextRequires{Name: "qwe"},
+			Site:            BlackBox.Site{},
 		}
-
-		var serializedPing, _ = json.Marshal(ping)
-
-		var message = ipc.Message{
-			To:   "ctx-parser",
-			Data: string(serializedPing),
-		}
-
-		ipc.Send(message)
-
-		value := ipc.Get(ipc.WebScrapperIpcName)
-		if value == nil {
-			continue
-		}
-
-		stringValue := fmt.Sprintf("%v", value)
-		var pong = ipc.Pong{}
-		_ = json.Unmarshal([]byte(stringValue), &pong)
-
-		log.Println("Got pong: ", pong)
-		lastSeq = pong.Seq
-
-		time.Sleep(time.Second / 2)
-	}
-}
-
-func Scrap() {
-	for {
+		magickRequestPipe <- mr
 		time.Sleep(time.Second)
 	}
 }
 
-func StartScrapper(wg *sync.WaitGroup) {
+func StartScrapper(wg *sync.WaitGroup, magickRequestPipe chan BlackBox.MagickRequest) {
 	defer wg.Done()
-	go IpcComm()
-	Scrap()
+	Scrap(magickRequestPipe)
 }
