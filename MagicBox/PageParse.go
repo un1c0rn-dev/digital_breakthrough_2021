@@ -9,19 +9,19 @@ import (
 )
 
 type WebText struct {
-	content string
+	Content string
 }
 
 type WebLink struct {
-	to      string
-	title   string
-	content string
+	To      string
+	Title   string
+	Content string
 }
 
 type PageContent struct {
-	text          list.List
-	links         list.List
-	externalLinks list.List
+	Text          list.List
+	Links         list.List
+	ExternalLinks list.List
 }
 
 type WebTextError struct {
@@ -42,12 +42,12 @@ func isScriptNode(node *html.Node) bool {
 
 func parseTextElemNode(node *html.Node) (WebText, error) {
 	webText := WebText{}
-	webText.content = strings.Replace(node.Data, "\n", "", -1)
-	webText.content = strings.TrimSpace(webText.content)
-	if len(webText.content) == 0 {
+	webText.Content = strings.Replace(node.Data, "\n", "", -1)
+	webText.Content = strings.TrimSpace(webText.Content)
+	if len(webText.Content) == 0 {
 		return WebText{}, &WebTextError{"Empty tag"}
 	}
-	//fmt.Println("Parsed text: ", webText)
+	//fmt.Println("Parsed Text: ", webText)
 	return webText, nil
 }
 
@@ -56,17 +56,17 @@ func parseLinkElemNode(node *html.Node) WebLink {
 	for _, attr := range node.Attr {
 		switch attr.Key {
 		case "href":
-			webLink.to = attr.Val
+			webLink.To = attr.Val
 			break
-		case "title":
-			webLink.title = attr.Val
+		case "Title":
+			webLink.Title = attr.Val
 			break
 		}
 	}
 
 	innerNode := node.FirstChild
 	if innerNode != nil && innerNode.Type == html.TextNode {
-		webLink.content = innerNode.Data
+		webLink.Content = innerNode.Data
 	}
 
 	//fmt.Println("Parsed link: ", webLink)
@@ -81,7 +81,7 @@ func ParsePage(link string) (PageContent, error) {
 	}
 
 	if !strings.Contains(response.Status, "200") {
-		return PageContent{}, &WebTextError{"Unable to fetch page"}
+		return PageContent{}, &WebTextError{"Unable To fetch page"}
 	}
 
 	htmlPage, err := html.Parse(response.Body)
@@ -97,7 +97,7 @@ func ParsePage(link string) (PageContent, error) {
 		case html.TextNode:
 			webText, err := parseTextElemNode(node)
 			if err != nil {
-				pageContent.text.PushBack(webText)
+				pageContent.Text.PushBack(webText)
 			}
 			return
 		case html.ElementNode:
@@ -105,7 +105,7 @@ func ParsePage(link string) (PageContent, error) {
 				return
 			} else if isLinkNode(node) {
 				webLink := parseLinkElemNode(node)
-				pageContent.links.PushBack(webLink)
+				pageContent.Links.PushBack(webLink)
 				break
 			}
 			break

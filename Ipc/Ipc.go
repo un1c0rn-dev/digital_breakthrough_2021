@@ -5,9 +5,6 @@ import (
 	"sync"
 )
 
-var CtxParserIpcName = "ctx-parser"
-var WebScrapperIpcName = "ctx-parser"
-
 type Ping struct {
 	Ack int `json:"ack"`
 	Seq int `json:"seq"`

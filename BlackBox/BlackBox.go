@@ -14,7 +14,13 @@ func Parse(magickRequestPipe chan MagicBox.MagickRequest) {
 		var mr MagicBox.MagickRequest
 		mr = <-magickRequestPipe
 		if len(mr.ContextRequires.Name) != 0 {
-			fmt.Println(mr.ContextRequires.Name)
+			for _, content := range mr.Site.Content {
+				textElem := content.Links.Front()
+				for textElem != nil {
+					fmt.Println(*textElem)
+					textElem = textElem.Next()
+				}
+			}
 		}
 
 	}
