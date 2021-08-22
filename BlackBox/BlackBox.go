@@ -15,11 +15,8 @@ func Parse(magickRequestPipe chan MagicBox.MagickRequest) {
 		mr = <-magickRequestPipe
 		if len(mr.ContextRequires.Name) != 0 {
 			for _, content := range mr.Site.Content {
-				textElem := content.Links.Front()
-				for textElem != nil {
-					fmt.Println(*textElem)
-					textElem = textElem.Next()
-				}
+				pageContext, _ := GetPageContext(content)
+				fmt.Println(pageContext)
 			}
 		}
 

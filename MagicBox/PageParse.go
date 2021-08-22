@@ -96,7 +96,7 @@ func ParsePage(link string) (PageContent, error) {
 		switch node.Type {
 		case html.TextNode:
 			webText, err := parseTextElemNode(node)
-			if err != nil {
+			if err == nil {
 				pageContent.Text.PushBack(webText)
 			}
 			return
