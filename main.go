@@ -2,37 +2,24 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"os"
-	"sync"
-	"unicorn.dev.web-scrap/BlackBox"
-	"unicorn.dev.web-scrap/MagicBox"
+	"unicorn.dev.web-scrap/WebApi"
 )
 
 func main() {
-	startScrapper := flag.Bool("scrapper", false, "Start web scrapper process")
-	startParser := flag.Bool("parser", false, "Start web parser process")
+	startServer := flag.Bool("server", false, "Start backend server")
+	useTls := flag.Bool("use-tls", false, "use TLS")
+	tlsKeyFile := flag.String("tls-key", "", "TLS key file (only with -use-tls)")
+	tlsCertFile := flag.String("tls-crt", "", "TLS cert file (only with -use-tls)")
 
 	flag.Parse()
 
-	if !*startScrapper && !*startParser {
-		fmt.Println("Please, choose at least one of mode")
-		os.Exit(1)
+	config := WebApi.ServerConfiguration{
+		UseTls:     *useTls,
+		TlsCrtFile: *tlsCertFile,
+		TlsKeyFile: *tlsKeyFile,
 	}
 
-	var wg sync.WaitGroup
-	magickRequestChan := make(chan MagicBox.MagickRequest)
-
-	if *startScrapper {
-		wg.Add(1)
-		go MagicBox.StartScrapper(&wg, magickRequestChan)
+	if *startServer {
+		WebApi.StartServer(&config)
 	}
-
-	if *startParser {
-		wg.Add(1)
-		go BlackBox.StartParser(&wg, magickRequestChan)
-
-	}
-
-	wg.Wait()
 }
