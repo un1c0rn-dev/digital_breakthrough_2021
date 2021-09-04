@@ -31,6 +31,15 @@ type ServerConfiguration struct {
 	Port        string
 }
 
+func handleOptions(w http.ResponseWriter, r *http.Request) bool {
+	if r.Method == http.MethodOptions {
+		http.Error(w, "POST,GET", http.StatusOK)
+		return false
+	}
+
+	return true
+}
+
 func ping(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, InvalidRequestMethodGet, http.StatusMethodNotAllowed)
@@ -46,6 +55,10 @@ func ping(w http.ResponseWriter, r *http.Request) {
 func handleSearch(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	if !handleOptions(w, r) {
+		return
+	}
 
 	if r.Method != http.MethodPost {
 		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
@@ -120,6 +133,10 @@ func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
+	if !handleOptions(w, r) {
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
 		return
@@ -163,6 +180,10 @@ func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	if !handleOptions(w, r) {
+		return
+	}
 
 	if r.Method != http.MethodPost {
 		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
