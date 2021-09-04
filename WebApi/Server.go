@@ -31,9 +31,13 @@ type ServerConfiguration struct {
 	Port        string
 }
 
-func handleOptions(w http.ResponseWriter, r *http.Request) bool {
+func setupCORS(w *http.ResponseWriter, r *http.Request) bool {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
 	if r.Method == http.MethodOptions {
-		http.Error(w, "POST,GET", http.StatusOK)
+		http.Error(*w, "POST,GET", http.StatusOK)
 		return false
 	}
 
@@ -54,9 +58,7 @@ func ping(w http.ResponseWriter, r *http.Request) {
 
 func handleSearch(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	if !handleOptions(w, r) {
+	if !setupCORS(&w, r) {
 		return
 	}
 
@@ -131,9 +133,7 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 
 func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	if !handleOptions(w, r) {
+	if !setupCORS(&w, r) {
 		return
 	}
 
@@ -179,9 +179,7 @@ func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 
 func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	if !handleOptions(w, r) {
+	if !setupCORS(&w, r) {
 		return
 	}
 
