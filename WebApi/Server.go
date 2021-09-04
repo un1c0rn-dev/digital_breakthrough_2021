@@ -28,6 +28,7 @@ type ServerConfiguration struct {
 	TlsCrtFile  string
 	TlsKeyFile  string
 	ApiKeysFile string
+	Port        string
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
@@ -246,7 +247,7 @@ func StartServer(configuration *ServerConfiguration) {
 	}
 
 	s := &http.Server{
-		Addr:           ":8080",
+		Addr:           ":" + configuration.Port,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
