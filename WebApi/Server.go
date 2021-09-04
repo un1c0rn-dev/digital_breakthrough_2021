@@ -32,6 +32,7 @@ type ServerConfiguration struct {
 }
 
 func setupCORS(w *http.ResponseWriter, r *http.Request) bool {
+	fmt.Println("Setting up CORS for " + r.RemoteAddr)
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
@@ -57,6 +58,8 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSearch(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println(r.Method + " /search " + r.RemoteAddr)
 
 	if !setupCORS(&w, r) {
 		return
@@ -133,6 +136,8 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 
 func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Println(r.Method + " /status/tasks " + r.RemoteAddr)
+
 	if !setupCORS(&w, r) {
 		return
 	}
@@ -178,6 +183,8 @@ func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDataCollect(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println(r.Method + " /data/collect " + r.RemoteAddr)
 
 	if !setupCORS(&w, r) {
 		return
