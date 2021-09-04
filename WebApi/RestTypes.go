@@ -1,7 +1,7 @@
 package WebApi
 
 type SearchRequest struct {
-	Category string `json:"category"`
+	Keywords []string `json:"keywords"`
 }
 
 type TaskStatusRequest struct {
@@ -9,8 +9,8 @@ type TaskStatusRequest struct {
 }
 
 type ResponseStatus struct {
-	Status string `json:"status"`
-	ID     uint64 `json:"id"`
+	Status string   `json:"status"`
+	IDs    []uint64 `json:"ids"`
 }
 
 type ResponseTaskStatus struct {

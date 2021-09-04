@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"unicorn.dev.web-scrap/Regestery/GovRu"
 )
 
 const INVALID_REQUEST_METHOD_POST string = "Only POST request allowed"
@@ -14,10 +15,22 @@ const INVALID_REQUEST_METHOD_GET string = "Only GET request allowed"
 const UNABLE_TO_GET_REQUEST_BODY string = "Unable to get request body"
 const INVALID_REQUEST_DATA string = "Invalid request data"
 
+type damiaConf struct {
+	Key    string `json:"key"`
+	Active bool
+}
+
+var damiaConfig damiaConf
+
+type apiKeysFile struct {
+	Damia damiaConf `json:"damia"`
+}
+
 type ServerConfiguration struct {
-	UseTls     bool
-	TlsCrtFile string
-	TlsKeyFile string
+	UseTls      bool
+	TlsCrtFile  string
+	TlsKeyFile  string
+	ApiKeysFile string
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
@@ -52,11 +65,17 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := createTaskContext()
+	govRuTask := createTaskContext()
+	govRuSearchQueru := GovRu.NewSearchQuery()
+	govRuSearchQueru.Keywords = searchRequest.Keywords
+	if damiaConfig.Active {
+		go GovRu.Search(damiaConfig.Key, govRuSearchQueru, govRuTask)
+	}
+
 	response := ResponseStatus{
 		Status: "OK",
-		ID:     task.Id,
 	}
+	response.IDs = append(response.IDs, govRuTask.Id)
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
@@ -90,7 +109,7 @@ func handleTaskStatus(w http.ResponseWriter, r *http.Request) {
 	if task == nil {
 		response := ResponseStatus{
 			Status: "Not exists",
-			ID:     taskStatusRequest.Id,
+			IDs:    make([]uint64, 0),
 		}
 
 		jsonResponse, _ := json.Marshal(response)
@@ -104,6 +123,8 @@ func handleTaskStatus(w http.ResponseWriter, r *http.Request) {
 
 func StartServer(configuration *ServerConfiguration) {
 
+	var err error
+
 	if configuration == nil {
 		log.Fatal("Unable to run server")
 	}
@@ -112,14 +133,32 @@ func StartServer(configuration *ServerConfiguration) {
 	http.HandleFunc("/search", handleSearch)
 	http.HandleFunc("/status/task", handleTaskStatus)
 
+	if len(configuration.ApiKeysFile) > 0 {
+		value, err := ioutil.ReadFile(configuration.ApiKeysFile)
+		if err != nil {
+			log.Fatal("Unable to read " + configuration.ApiKeysFile)
+			return
+		}
+
+		f := apiKeysFile{}
+		err = json.Unmarshal(value, &f)
+		if err != nil {
+			log.Fatal("Unable to parse " + configuration.ApiKeysFile)
+			return
+		}
+
+		if len(f.Damia.Key) > 0 {
+			damiaConfig = f.Damia
+			damiaConfig.Active = true
+		}
+	}
+
 	s := &http.Server{
 		Addr:           ":8080",
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-
-	var err error
 
 	initTaskContext()
 

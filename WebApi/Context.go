@@ -1,55 +1,53 @@
 package WebApi
 
-const TASK_STATUS_DEFERRED string = "deferred"
-const TASK_STATUS_ACTIVE string = "active"
-const TASK_STATUS_DONE string = "done"
-const TASK_STATUS_ERROR string = "error"
+import (
+	"sync"
+	"unicorn.dev.web-scrap/Tasks"
+)
 
-type Task struct {
-	Id     uint64 `json:"id"`
-	Status string `json:"status"`
-}
+var contextMtx sync.RWMutex
 
-type TaskContext struct {
-	IdsCounter uint64
-	Tasks      map[uint64]*Task
-}
-
-type context struct {
-	TaskContext TaskContext
-}
-
-var Context context
+var Context Tasks.Context
 
 func initTaskContext() {
 	Context.TaskContext.IdsCounter = 0
-	Context.TaskContext.Tasks = make(map[uint64]*Task)
+	Context.TaskContext.Tasks = make(map[uint64]*Tasks.Task)
 }
 
 func InitContext() {
 	initTaskContext()
 }
 
-func createTaskContext() *Task {
-	task := new(Task)
+func createTaskContext() *Tasks.Task {
+	task := new(Tasks.Task)
 	lastId := &Context.TaskContext.IdsCounter
 	*lastId++
+	contextMtx.Lock()
 	Context.TaskContext.Tasks[*lastId] = task
+	contextMtx.Unlock()
 	task.Id = *lastId
-	task.Status = TASK_STATUS_DEFERRED
+	task.Status = Tasks.TaskStatusDeferred
 	return task
 }
 
-func getTaskContext(id uint64) *Task {
+func getTaskContext(id uint64) *Tasks.Task {
+	contextMtx.RLock()
 	if task, ok := Context.TaskContext.Tasks[id]; ok {
+		contextMtx.RUnlock()
 		return task
 	}
 
+	contextMtx.RUnlock()
 	return nil
 }
 
-func removeTaskContext(taskContext *Task) {
+func removeTaskContext(taskContext *Tasks.Task) {
+	contextMtx.RLock()
 	if _, ok := Context.TaskContext.Tasks[taskContext.Id]; ok {
+		contextMtx.RUnlock()
+
+		contextMtx.Lock()
 		delete(Context.TaskContext.Tasks, taskContext.Id)
+		contextMtx.Unlock()
 	}
 }
