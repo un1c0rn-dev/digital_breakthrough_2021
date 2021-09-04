@@ -65,6 +65,39 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 	govRuTask := createTaskContext()
 	govRuSearchQueru := GovRu.NewSearchQuery()
 	govRuSearchQueru.Keywords = searchRequest.Keywords
+	if searchRequest.MaxRequests > 0 {
+		govRuSearchQueru.MaxRequests = searchRequest.MaxRequests
+	}
+	if searchRequest.MinPrice > 0 {
+		govRuSearchQueru.MaxRequests = searchRequest.MinPrice
+	}
+	if searchRequest.MaxRequests > 0 {
+		govRuSearchQueru.MaxRequests = searchRequest.MaxPrice
+	}
+	if len(searchRequest.Etp) > 0 {
+		govRuSearchQueru.Etp = searchRequest.Etp
+	}
+	if len(searchRequest.Placing) > 0 {
+		govRuSearchQueru.Placing = searchRequest.Placing
+	}
+	if len(searchRequest.Region) > 0 {
+		govRuSearchQueru.Region = searchRequest.Region
+	}
+	if len(searchRequest.Okpd) > 0 {
+		govRuSearchQueru.Okpd = searchRequest.Okpd
+	}
+	if searchRequest.Status > 0 {
+		govRuSearchQueru.Status = GovRu.SearchStatusCode(searchRequest.Status)
+	}
+	if searchRequest.Fz > 0 {
+		govRuSearchQueru.Fz = GovRu.SearchFZ(searchRequest.Fz)
+	}
+	if searchRequest.ToDateYMD[0] != 0 && searchRequest.ToDateYMD[1] != 0 && searchRequest.ToDateYMD[2] != 0 {
+		govRuSearchQueru.ToDateYMD = searchRequest.ToDateYMD
+	}
+	if searchRequest.FromDateYMD[0] != 0 && searchRequest.FromDateYMD[1] != 0 && searchRequest.FromDateYMD[2] != 0 {
+		govRuSearchQueru.FromDateYMD = searchRequest.FromDateYMD
+	}
 	go GovRu.Search(govRuSearchQueru, govRuTask)
 
 	response := ResponseStatus{

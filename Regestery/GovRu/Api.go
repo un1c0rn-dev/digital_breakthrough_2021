@@ -589,6 +589,14 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		params.Add(StatusParam, strconv.Itoa(int(query.Status)))
 	}
 
+	if query.FromDateYMD[0] != 0 && query.FromDateYMD[1] != 0 && query.FromDateYMD[2] != 0 {
+		params.Add(FromDataParam, strconv.Itoa(query.FromDateYMD[0])+"-"+strconv.Itoa(query.FromDateYMD[1])+"-"+strconv.Itoa(query.FromDateYMD[0]))
+	}
+
+	if query.ToDateYMD[0] != 0 && query.ToDateYMD[1] != 0 && query.ToDateYMD[2] != 0 {
+		params.Add(ToDateParam, strconv.Itoa(query.ToDateYMD[0])+"-"+strconv.Itoa(query.ToDateYMD[1])+"-"+strconv.Itoa(query.ToDateYMD[0]))
+	}
+
 	task.Progress = "Поиск поставок..."
 	request := DamiaBaseUrl + DamiaSearchPath + "?" + params.Encode()
 	response, err := http.Get(request)
