@@ -6,24 +6,21 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 	"unicorn.dev.web-scrap/Regestery/GovRu"
+	"unicorn.dev.web-scrap/Tasks"
 )
 
-const INVALID_REQUEST_METHOD_POST string = "Only POST request allowed"
-const INVALID_REQUEST_METHOD_GET string = "Only GET request allowed"
-const UNABLE_TO_GET_REQUEST_BODY string = "Unable to get request body"
-const INVALID_REQUEST_DATA string = "Invalid request data"
-
-type damiaConf struct {
-	Key    string `json:"key"`
-	Active bool
-}
-
-var damiaConfig damiaConf
+const (
+	InvalidRequestMethodPost string = "Only POST request allowed"
+	InvalidRequestMethodGet  string = "Only GET request allowed"
+	UnableToGetRequestBody   string = "Unable to get request body"
+	InvalidRequestData       string = "Invalid request data"
+)
 
 type apiKeysFile struct {
-	Damia damiaConf `json:"damia"`
+	Damia GovRu.DamiaConf `json:"damia"`
 }
 
 type ServerConfiguration struct {
@@ -35,7 +32,7 @@ type ServerConfiguration struct {
 
 func ping(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, INVALID_REQUEST_METHOD_GET, http.StatusMethodNotAllowed)
+		http.Error(w, InvalidRequestMethodGet, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -48,29 +45,27 @@ func ping(w http.ResponseWriter, r *http.Request) {
 func handleSearch(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
-		http.Error(w, INVALID_REQUEST_METHOD_POST, http.StatusMethodNotAllowed)
+		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
 		return
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, UNABLE_TO_GET_REQUEST_BODY, http.StatusInternalServerError)
+		http.Error(w, UnableToGetRequestBody, http.StatusInternalServerError)
 		return
 	}
 
 	var searchRequest SearchRequest
 	err = json.Unmarshal(body, &searchRequest)
 	if err != nil {
-		http.Error(w, INVALID_REQUEST_DATA, http.StatusBadRequest)
+		http.Error(w, InvalidRequestData, http.StatusBadRequest)
 		return
 	}
 
 	govRuTask := createTaskContext()
 	govRuSearchQueru := GovRu.NewSearchQuery()
 	govRuSearchQueru.Keywords = searchRequest.Keywords
-	if damiaConfig.Active {
-		go GovRu.Search(damiaConfig.Key, govRuSearchQueru, govRuTask)
-	}
+	go GovRu.Search(govRuSearchQueru, govRuTask)
 
 	response := ResponseStatus{
 		Status: "OK",
@@ -87,21 +82,21 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 
 func handleTaskStatus(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method != http.MethodGet {
-		http.Error(w, INVALID_REQUEST_METHOD_GET, http.StatusMethodNotAllowed)
+	if r.Method != http.MethodPost {
+		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
 		return
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, UNABLE_TO_GET_REQUEST_BODY, http.StatusInternalServerError)
+		http.Error(w, UnableToGetRequestBody, http.StatusInternalServerError)
 		return
 	}
 
 	var taskStatusRequest TaskStatusRequest
 	err = json.Unmarshal(body, &taskStatusRequest)
 	if err != nil {
-		http.Error(w, INVALID_REQUEST_DATA, http.StatusBadRequest)
+		http.Error(w, InvalidRequestData, http.StatusBadRequest)
 		return
 	}
 
@@ -121,6 +116,80 @@ func handleTaskStatus(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, string(jsonResponse), http.StatusOK)
 }
 
+func handleDataCollect(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		http.Error(w, InvalidRequestMethodGet, http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, UnableToGetRequestBody, http.StatusInternalServerError)
+		return
+	}
+
+	var collectDataRequest CollectDataRequest
+	err = json.Unmarshal(body, &collectDataRequest)
+	if err != nil {
+		http.Error(w, InvalidRequestData, http.StatusBadRequest)
+		return
+	}
+
+	responseCollectData := ResponseCollectData{}
+	for _, id := range collectDataRequest.Ids {
+		task := getTaskContext(id)
+		if task == nil {
+			response := ResponseStatus{
+				Status: "Not exists",
+				IDs:    make([]uint64, 0),
+			}
+
+			jsonResponse, _ := json.Marshal(response)
+			http.Error(w, string(jsonResponse), http.StatusNotFound)
+			return
+		}
+
+		if task.Status == Tasks.TaskStatusError {
+			response := ResponseStatus{
+				Status: "Task failed",
+				IDs:    make([]uint64, 0),
+			}
+
+			jsonResponse, _ := json.Marshal(response)
+			http.Error(w, string(jsonResponse), http.StatusInternalServerError)
+			return
+		}
+
+		if task.Status != Tasks.TaskStatusDone {
+			response := ResponseStatus{
+				Status: "Not ready",
+				IDs:    make([]uint64, 0),
+			}
+
+			jsonResponse, _ := json.Marshal(response)
+			http.Error(w, string(jsonResponse), http.StatusTooEarly)
+			return
+		}
+
+		if task.Result == nil {
+			response := ResponseStatus{
+				Status: "Empty result",
+				IDs:    make([]uint64, 0),
+			}
+
+			jsonResponse, _ := json.Marshal(response)
+			http.Error(w, string(jsonResponse), http.StatusInternalServerError)
+			return
+		}
+
+		responseCollectData.Data[strconv.FormatUint(id, 10)] = task.Result
+	}
+
+	jsonResponse, _ := json.Marshal(&responseCollectData)
+	http.Error(w, string(jsonResponse), http.StatusOK)
+}
+
 func StartServer(configuration *ServerConfiguration) {
 
 	var err error
@@ -132,6 +201,7 @@ func StartServer(configuration *ServerConfiguration) {
 	http.HandleFunc("/ping", ping)
 	http.HandleFunc("/search", handleSearch)
 	http.HandleFunc("/status/task", handleTaskStatus)
+	http.HandleFunc("/data/collect", handleDataCollect)
 
 	if len(configuration.ApiKeysFile) > 0 {
 		value, err := ioutil.ReadFile(configuration.ApiKeysFile)
@@ -147,10 +217,7 @@ func StartServer(configuration *ServerConfiguration) {
 			return
 		}
 
-		if len(f.Damia.Key) > 0 {
-			damiaConfig = f.Damia
-			damiaConfig.Active = true
-		}
+		GovRu.Configure(f.Damia)
 	}
 
 	s := &http.Server{
@@ -160,7 +227,7 @@ func StartServer(configuration *ServerConfiguration) {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	initTaskContext()
+	InitContext()
 
 	if configuration.UseTls {
 		err = s.ListenAndServeTLS(configuration.TlsCrtFile, configuration.TlsKeyFile)
