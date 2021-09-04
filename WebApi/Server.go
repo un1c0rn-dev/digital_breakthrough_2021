@@ -134,7 +134,7 @@ func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := make([]*Tasks.Task, 0)
+	data := make([]Tasks.Task, 0)
 	for _, id := range tasksStatusRequest.Id {
 		task := getTaskContext(id)
 
@@ -149,7 +149,7 @@ func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		data = append(data, task)
+		data = append(data, *task)
 	}
 
 	jsonResponse, _ := json.Marshal(data)
@@ -226,7 +226,7 @@ func StartServer(configuration *ServerConfiguration) {
 
 	http.HandleFunc("/ping", ping)
 	http.HandleFunc("/search", handleSearch)
-	http.HandleFunc("/status/task", handleTasksStatus)
+	http.HandleFunc("/status/tasks", handleTasksStatus)
 	http.HandleFunc("/data/collect", handleDataCollect)
 
 	if len(configuration.ApiKeysFile) > 0 {
