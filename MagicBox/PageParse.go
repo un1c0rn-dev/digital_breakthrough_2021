@@ -110,7 +110,7 @@ func ParsePage(link string) (PageContent, error) {
 			}
 			break
 		case html.DocumentNode:
-			//println("doc: ", node.Data)
+			//println("doc: ", node.Date)
 			break
 		}
 

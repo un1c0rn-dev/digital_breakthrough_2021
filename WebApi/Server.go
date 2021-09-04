@@ -137,6 +137,8 @@ func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseCollectData := ResponseCollectData{}
+	responseCollectData.Data = make(map[string][]Tasks.TaskResult)
+
 	for _, id := range collectDataRequest.Ids {
 		task := getTaskContext(id)
 		if task == nil {

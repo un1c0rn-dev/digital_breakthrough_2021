@@ -152,6 +152,7 @@ type SearchQuery struct {
 	MinPrice    int
 	MaxPrice    int
 	Fz          SearchFZ
+	MaxRequests int
 	Page        int // unused
 }
 
@@ -191,6 +192,7 @@ func NewSearchQuery() SearchQuery {
 		MaxPrice:    0,
 		Fz:          AnyFZ,
 		Page:        0,
+		MaxRequests: 10,
 	}
 }
 
@@ -244,135 +246,135 @@ const (
 )
 
 type Etp struct {
-	Kod          string `json:"Код"`
-	Naimenovanie string `json:"Наименование"`
-	URL          string `json:"Url"`
+	Code  string `json:"Код"`
+	Names string `json:"Наименование"`
+	URL   string `json:"Url"`
 }
-type Zakazchik struct {
-	Ogrn      string `json:"ОГРН"`
-	Inn       string `json:"ИНН"`
-	NaimPoln  string `json:"НаимПолн"`
-	NaimSokr  string `json:"НаимСокр"`
-	AdresPoln string `json:"АдресПолн"`
-	RukFIO    string `json:"РукФИО"`
-	RukINNFL  string `json:"РукИННФЛ"`
-	Telefon   string `json:"Телефон,omitempty"`
-	Email     string `json:"Email,omitempty"`
+type Customer struct {
+	ORGN         string `json:"ОГРН"`
+	Inn          string `json:"ИНН"`
+	FullName     string `json:"НаимПолн"`
+	ShortName    string `json:"НаимСокр"`
+	AddrFull     string `json:"АдресПолн"`
+	BossInitials string `json:"РукФИО"`
+	BossINNFL    string `json:"РукИННФЛ"`
+	Phone        string `json:"Телефон,omitempty"`
+	Email        string `json:"Email,omitempty"`
 }
-type NachTsena struct {
-	Summa       float64 `json:"Summa"`
-	ValyutaKod  string  `json:"ВалютаКод"`
-	ValyutaNaim string  `json:"ВалютаНаим"`
+type StartCost struct {
+	Summa        float64 `json:"Summa"`
+	CurrencyCode string  `json:"ВалютаКод"`
+	CurrencyName string  `json:"ВалютаНаим"`
 }
-type ObespUchast struct {
-	Summa      float64 `json:"Сумма"`
-	Dolya      float64 `json:"Доля"`
-	Bank       string  `json:"Банк"`
-	Bik        string  `json:"БИК"`
-	RaschSchet string  `json:"РасчСчет"`
-	LitsSchet  string  `json:"ЛицСчет"`
+type PatrticipantGuarantee struct {
+	Summa       float64 `json:"Сумма"`
+	Part        float64 `json:"Доля"`
+	Bank        string  `json:"Банк"`
+	BIK         string  `json:"БИК"`
+	CheckingAcc string  `json:"РасчСчет"`
+	PersonalAcc string  `json:"ЛицСчет"`
 }
-type ObespIsp struct {
-	Summa      float64 `json:"Сумма"`
-	Dolya      float64 `json:"Доля"`
-	Bank       string  `json:"Банк"`
-	Bik        string  `json:"БИК"`
-	RaschSchet string  `json:"РасчСчет"`
-	LitsSchet  string  `json:"ЛицСчет"`
+type ExecutionGuarantee struct {
+	Summa       float64 `json:"Сумма"`
+	Part        float64 `json:"Доля"`
+	Bank        string  `json:"Банк"`
+	Bik         string  `json:"БИК"`
+	CheckingAcc string  `json:"РасчСчет"`
+	PersonalAcc string  `json:"ЛицСчет"`
 }
 type ObespGarant struct {
 }
-type Produkt struct {
-	Okpd      string        `json:"ОКПД"`
-	Nazvanie  string        `json:"Название"`
-	ObektyZak []interface{} `json:"ОбъектыЗак"`
+type Product struct {
+	Okpd     string        `json:"ОКПД"`
+	Name     string        `json:"Название"`
+	Subjects []interface{} `json:"ОбъектыЗак"`
 }
 type Usloviya struct {
 }
 type IP struct {
-	Ogrnip  string `json:"ОГРНИП"`
-	Innfl   string `json:"ИННФЛ"`
-	Fio     string `json:"ФИО"`
-	Telefon string `json:"Телефон"`
-	Email   string `json:"Email"`
+	ORGNIP string `json:"ОГРНИП"`
+	INNFL  string `json:"ИННФЛ"`
+	Fio    string `json:"ФИО"`
+	Phone  string `json:"Телефон"`
+	Email  string `json:"Email"`
 }
 type YuL struct {
-	Ogrn      string `json:"ОГРНИП"`
-	Inn       string `json:"ИНН"`
-	NaimPoln  string `json:"НаимПолн"`
-	NaimSokr  string `json:"НаимСокр"`
-	AdresPoln string `json:"АдресПолн"`
-	RukFIO    string `json:"РукФИО"`
-	RukINNFL  string `json:"РукИННФЛ"`
-	Telefon   string `json:"Телефон"`
-	Email     string `json:"Email,omitempty"`
+	ORGNIP       string `json:"ОГРНИП"`
+	Inn          string `json:"ИНН"`
+	FullName     string `json:"НаимПолн"`
+	ShortName    string `json:"НаимСокр"`
+	AddrFull     string `json:"АдресПолн"`
+	BossInitials string `json:"РукФИО"`
+	BossINNFL    string `json:"РукИННФЛ"`
+	Phone        string `json:"Телефон"`
+	Email        string `json:"Email,omitempty"`
 }
-type Zayavki struct {
-	Nomer    string `json:"Номер"`
-	IP       IP     `json:"ИП,omitempty"`
-	Summa    int    `json:"Сумма"`
-	Rezultat string `json:"Результат"`
-	Prichina string `json:"Причина"`
-	YuL      YuL    `json:"ЮЛ,omitempty"`
+type Requests struct {
+	Number string `json:"Номер"`
+	IP     IP     `json:"ИП,omitempty"`
+	Summa  int    `json:"Сумма"`
+	Result string `json:"Результат"`
+	Cause  string `json:"Причина"`
+	YuL    YuL    `json:"ЮЛ,omitempty"`
 }
-type Protokol struct {
-	Tip     string    `json:"Тип"`
-	Nomer   string    `json:"Номер"`
-	Data    string    `json:"Дата"`
-	Zayavki []Zayavki `json:"Заявки"`
-	DopInfo string    `json:"ДопИнфо"`
-	URL     string    `json:"Url"`
+type Protocol struct {
+	Type           string     `json:"Тип"`
+	Number         string     `json:"Номер"`
+	Date           string     `json:"Дата"`
+	Requests       []Requests `json:"Заявки"`
+	AdditionalInfo string     `json:"ДопИнфо"`
+	URL            string     `json:"Url"`
 }
-type Tsena struct {
-	Summa       int    `json:"Сумма"`
-	ValyutaKod  string `json:"ВалютаКод"`
-	ValyutaNaim string `json:"ВалютаНаим"`
+type Cost struct {
+	Summa        int    `json:"Сумма"`
+	CurrencyCode string `json:"ВалютаКод"`
+	CurrencyName string `json:"ВалютаНаим"`
 }
-type Postavshchiki struct {
+type Distributors struct {
 	YuL []interface{} `json:"ЮЛ"`
 	IP  []IP          `json:"ИП"`
 	Fl  []interface{} `json:"ФЛ"`
 }
-type Kontrakt struct {
-	Nomer         string        `json:"Номер"`
-	DataPodp      string        `json:"ДатаПодп"`
-	Lot           int           `json:"Лот"`
-	Tsena         Tsena         `json:"Цена"`
-	Postavshchiki Postavshchiki `json:"Поставщики"`
+type Contract struct {
+	Number       string       `json:"Номер"`
+	SignDate     string       `json:"ДатаПодп"`
+	Lot          int          `json:"Лот"`
+	Cost         Cost         `json:"Цена"`
+	Distributors Distributors `json:"Поставщики"`
 }
 
 type Status struct {
-	Status   string `json:"Статус"`
-	Prichina string `json:"Причина"`
-	Data     string `json:"Дата"`
+	Status string `json:"Статус"`
+	Cause  string `json:"Причина"`
+	Date   string `json:"Дата"`
 }
 
-type Zakupka struct {
-	Region       string              `json:"Регион"`
-	Fz           int                 `json:"ФЗ"`
-	DataPubl     string              `json:"ДатаПубл"`
-	DataNach     string              `json:"ДатаНач"`
-	VremyaNach   string              `json:"ВремяНач"`
-	DataOkonch   string              `json:"ДатаОконч"`
-	VremyaOkonch string              `json:"ВремяОконч"`
-	DataRassm    string              `json:"ДатаРассм"`
-	DataAukts    string              `json:"ДатаАукц"`
-	VremyaAukts  string              `json:"ВремяАукц"`
-	Etp          Etp                 `json:"ЭТП"`
-	Zakazchik    Zakazchik           `json:"Заказчик"`
-	Kontakty     []interface{}       `json:"Контакты"`
-	SposobRazm   string              `json:"СпособРазм"`
-	RazmRol      string              `json:"РазмРоль"`
-	SMPiSONO     bool                `json:"СМПиСОНО"`
-	NachTsena    NachTsena           `json:"НачЦена"`
-	ObespUchast  ObespUchast         `json:"ОбеспУчаст"`
-	ObespIsp     ObespIsp            `json:"ОбеспИсп"`
-	ObespGarant  ObespGarant         `json:"ОбеспГарант"`
-	Produkt      Produkt             `json:"Продукт"`
-	Usloviya     Usloviya            `json:"Условия"`
-	Protokol     Protokol            `json:"Протокол"`
-	Kontrakty    map[string]Kontrakt `json:"Контракты"`
-	Status       Status              `json:"Статус"`
+type Purchase struct {
+	Region                 string                `json:"Регион"`
+	Fz                     int                   `json:"ФЗ"`
+	DatePubl               string                `json:"ДатаПубл"`
+	DateStart              string                `json:"ДатаНач"`
+	TimeStart              string                `json:"ВремяНач"`
+	DateFinish             string                `json:"ДатаОконч"`
+	TimeFinish             string                `json:"ВремяОконч"`
+	AcceptDate             string                `json:"ДатаРассм"`
+	AuctionDate            string                `json:"ДатаАукц"`
+	AuctionTime            string                `json:"ВремяАукц"`
+	Etp                    Etp                   `json:"ЭТП"`
+	Customer               Customer              `json:"Заказчик"`
+	Contacts               []interface{}         `json:"Контакты"`
+	ExchWay                string                `json:"СпособРазм"`
+	ExchRole               string                `json:"РазмРоль"`
+	SMPiSONO               bool                  `json:"СМПиСОНО"`
+	PriceStart             StartCost             `json:"НачЦена"`
+	ParticipationGuarantee PatrticipantGuarantee `json:"ОбеспУчаст"`
+	ExecutionGuarantee     ExecutionGuarantee    `json:"ОбеспИсп"`
+	GuaranteeProvision     ObespGarant           `json:"ОбеспГарант"`
+	Product                Product               `json:"Продукт"`
+	Conditions             Usloviya              `json:"Условия"`
+	Protocol               Protocol              `json:"Протокол"`
+	Contracts              map[string]Contract   `json:"Контракты"`
+	Status                 Status                `json:"Статус"`
 }
 
 func rpnIsActive(rpnData *rpn) RpnRecord {
@@ -414,6 +416,11 @@ func CheckUnscrupulousOrganisation(inn string, result *Tasks.TaskResult) error {
 		return err
 	}
 
+	if response.StatusCode != http.StatusOK {
+		fmt.Errorf("Error getting data from server: " + string(responseBody))
+		return http.ErrNotSupported
+	}
+
 	dec := json.NewDecoder(strings.NewReader(string(responseBody)))
 	for {
 		var responseJson map[string]map[string]rpn
@@ -446,11 +453,12 @@ func CheckUnscrupulousOrganisation(inn string, result *Tasks.TaskResult) error {
 }
 
 type distributor struct {
-	Name  string
-	Email string
-	Phone string
-	Inn   string
-	Cost  int
+	OrganizationName string
+	ContactName      string
+	Email            string
+	Phone            string
+	Inn              string
+	Cost             int
 }
 
 func getDistributors(regn string) ([]distributor, error) {
@@ -474,7 +482,7 @@ func getDistributors(regn string) ([]distributor, error) {
 	distributors := make([]distributor, 0)
 
 	for {
-		var responseJson map[string]Zakupka
+		var responseJson map[string]Purchase
 		if err := dec.Decode(&responseJson); err == io.EOF {
 			break
 		} else if err != nil && len(responseJson) == 0 {
@@ -482,23 +490,25 @@ func getDistributors(regn string) ([]distributor, error) {
 		}
 
 		for _, zakupka := range responseJson {
-			for _, zayavka := range zakupka.Protokol.Zayavki {
+			for _, zayavka := range zakupka.Protocol.Requests {
 				var d distributor
-				if len(zayavka.IP.Innfl) > 0 {
+				if len(zayavka.IP.INNFL) > 0 {
 					d = distributor{
-						Name:  zayavka.IP.Fio,
-						Email: zayavka.IP.Email,
-						Phone: zayavka.IP.Telefon,
-						Inn:   zayavka.IP.Innfl,
-						Cost:  zayavka.Summa,
+						OrganizationName: "ИП " + zayavka.IP.Fio,
+						ContactName:      zayavka.IP.Fio,
+						Email:            zayavka.IP.Email,
+						Phone:            zayavka.IP.Phone,
+						Inn:              zayavka.IP.INNFL,
+						Cost:             zayavka.Summa,
 					}
 				} else if len(zayavka.YuL.Inn) > 0 {
 					d = distributor{
-						Name:  zayavka.YuL.RukFIO,
-						Email: zayavka.YuL.Email,
-						Phone: zayavka.YuL.Telefon,
-						Inn:   zayavka.YuL.Inn,
-						Cost:  zayavka.Summa,
+						OrganizationName: zayavka.YuL.ShortName,
+						ContactName:      zayavka.YuL.BossInitials,
+						Email:            zayavka.YuL.Email,
+						Phone:            zayavka.YuL.Phone,
+						Inn:              zayavka.YuL.Inn,
+						Cost:             zayavka.Summa,
 					}
 				} else {
 					continue
@@ -610,10 +620,15 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		}
 
 		task.Result = make([]Tasks.TaskResult, 0)
+
+		i := 0
 		for _, regKeys := range responseJson {
 			for zakup_regn, _ := range regKeys {
-				result := Tasks.TaskResult{}
-				log.Print("Retrieving personal information, zakup_regn: ", zakup_regn)
+				if i > query.MaxRequests {
+					break
+				}
+				i++
+				log.Print("Retrieving distributor information, regn: ", zakup_regn)
 				distrs, err := getDistributors(zakup_regn)
 				if err != nil {
 					fmt.Errorf("Unable to get distributors of " + zakup_regn)
@@ -623,7 +638,6 @@ func Search(query SearchQuery, task *Tasks.Task) {
 				for _, distrib := range distrs {
 					distributors = append(distributors, distrib)
 				}
-				task.Result = append(task.Result, result)
 			}
 		}
 	}
@@ -637,8 +651,8 @@ func Search(query SearchQuery, task *Tasks.Task) {
 			log.Print("Cannot check unscrupulous, inn: ", distr.Inn)
 		}
 
-		result.CompanyName = distr.Name
-		result.ContactPersons = append(result.ContactPersons, distr.Name)
+		result.CompanyName = distr.ContactName
+		result.ContactPersons = append(result.ContactPersons, distr.ContactName)
 		result.Emails = append(result.Emails, distr.Email)
 		result.Phones = append(result.Phones, distr.Phone)
 		result.AverageCapitalization = strconv.Itoa(distr.Cost)
