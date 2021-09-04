@@ -18,7 +18,7 @@ type SearchRequest struct {
 }
 
 type TaskStatusRequest struct {
-	Id uint64 `json:"id"`
+	Id []uint64 `json:"id"`
 }
 
 type CollectDataRequest struct {

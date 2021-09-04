@@ -113,7 +113,7 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, string(jsonResponse), http.StatusOK)
 }
 
-func handleTaskStatus(w http.ResponseWriter, r *http.Request) {
+func handleTasksStatus(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
@@ -126,26 +126,32 @@ func handleTaskStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var taskStatusRequest TaskStatusRequest
-	err = json.Unmarshal(body, &taskStatusRequest)
+	var tasksStatusRequest TaskStatusRequest
+	err = json.Unmarshal(body, &tasksStatusRequest)
 	if err != nil {
 		http.Error(w, InvalidRequestData, http.StatusBadRequest)
 		return
 	}
 
-	task := getTaskContext(taskStatusRequest.Id)
-	if task == nil {
-		response := ResponseStatus{
-			Status: "Not exists",
-			IDs:    make([]uint64, 0),
+	data := make([]*Tasks.Task, 0)
+	for _, id := range tasksStatusRequest.Id {
+		task := getTaskContext(id)
+
+		if task == nil {
+			response := ResponseStatus{
+				Status: "Not exists",
+				IDs:    make([]uint64, 0),
+			}
+
+			jsonResponse, _ := json.Marshal(response)
+			http.Error(w, string(jsonResponse), http.StatusNotFound)
+			return
 		}
 
-		jsonResponse, _ := json.Marshal(response)
-		http.Error(w, string(jsonResponse), http.StatusNotFound)
-		return
+		data = append(data, task)
 	}
 
-	jsonResponse, _ := json.Marshal(*task)
+	jsonResponse, _ := json.Marshal(data)
 	http.Error(w, string(jsonResponse), http.StatusOK)
 }
 
@@ -185,18 +191,7 @@ func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if task.Status == Tasks.TaskStatusError {
-			response := ResponseStatus{
-				Status: "Task failed",
-				IDs:    make([]uint64, 0),
-			}
-
-			jsonResponse, _ := json.Marshal(response)
-			http.Error(w, string(jsonResponse), http.StatusInternalServerError)
-			return
-		}
-
-		if task.Status != Tasks.TaskStatusDone {
+		if task.Status != Tasks.TaskStatusDone && task.Status != Tasks.TaskStatusError {
 			response := ResponseStatus{
 				Status: "Not ready",
 				IDs:    make([]uint64, 0),
@@ -208,14 +203,8 @@ func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if task.Result == nil {
-			response := ResponseStatus{
-				Status: "Empty result",
-				IDs:    make([]uint64, 0),
-			}
-
-			jsonResponse, _ := json.Marshal(response)
-			http.Error(w, string(jsonResponse), http.StatusInternalServerError)
-			return
+			removeTaskContext(task)
+			continue
 		}
 
 		responseCollectData.Data[strconv.FormatUint(id, 10)] = task.Result
@@ -236,7 +225,7 @@ func StartServer(configuration *ServerConfiguration) {
 
 	http.HandleFunc("/ping", ping)
 	http.HandleFunc("/search", handleSearch)
-	http.HandleFunc("/status/task", handleTaskStatus)
+	http.HandleFunc("/status/task", handleTasksStatus)
 	http.HandleFunc("/data/collect", handleDataCollect)
 
 	if len(configuration.ApiKeysFile) > 0 {
