@@ -24,10 +24,11 @@ type TaskResult struct {
 }
 
 type Task struct {
-	Id       uint64       `json:"id"`
-	Status   string       `json:"status"`
-	Progress string       `json:"progress"`
-	Result   []TaskResult `json:"result"`
+	Id               uint64       `json:"id"`
+	Status           string       `json:"status"`
+	Progress         string       `json:"progress"`
+	ProgressPercents float64      `json:"progress_percents"`
+	Result           []TaskResult `json:"result"`
 }
 
 type TaskContext struct {

@@ -219,6 +219,7 @@ func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 		}
 
 		responseCollectData.Data[strconv.FormatUint(id, 10)] = task.Result
+		removeTaskContext(task)
 	}
 
 	jsonResponse, _ := json.Marshal(&responseCollectData)

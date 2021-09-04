@@ -477,6 +477,11 @@ func getDistributors(regn string) ([]distributor, error) {
 		return nil, err
 	}
 
+	if response.StatusCode != http.StatusOK {
+		fmt.Errorf("Coulndt get distributors: " + string(responseBody))
+		return nil, http.ErrNotSupported
+	}
+
 	dec := json.NewDecoder(strings.NewReader(string(responseBody)))
 
 	distributors := make([]distributor, 0)
@@ -544,6 +549,7 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		task.Progress = taskProgress
 	}()
 	task.Status = Tasks.TaskStatusActive
+	task.ProgressPercents = 0
 
 	if !damiaConf.Active {
 		tasKStatus = Tasks.TaskStatusError
@@ -630,8 +636,10 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		task.Result = make([]Tasks.TaskResult, 0)
 
 		i := 0
+		percentPart := 80.0 / float64(query.MaxRequests)
 		for _, regKeys := range responseJson {
 			for zakup_regn, _ := range regKeys {
+				task.ProgressPercents += percentPart
 				if i > query.MaxRequests {
 					break
 				}
@@ -651,6 +659,7 @@ func Search(query SearchQuery, task *Tasks.Task) {
 	}
 
 	task.Progress = "Ищем лучших поставщиков..."
+	percentPart := 20 / float64(len(distributors))
 	for _, distr := range distributors {
 		result := Tasks.TaskResult{}
 		log.Print("Checking for unscrupulous, inn: ", distr.Inn)
@@ -666,6 +675,11 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		result.AverageCapitalization = strconv.Itoa(distr.Cost)
 
 		task.Result = append(task.Result, result)
+		task.ProgressPercents += percentPart
+
+		if task.ProgressPercents > 100 {
+			task.ProgressPercents = 100
+		}
 	}
 
 }
