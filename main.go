@@ -10,7 +10,7 @@ func main() {
 	tlsKeyFile := flag.String("tls-key", "", "TLS key file (only with -use-tls)")
 	tlsCertFile := flag.String("tls-crt", "", "TLS cert file (only with -use-tls)")
 	apiKeysFile := flag.String("api-keys", "", "Add API keys file")
-	port := flag.String("port", "8080", "Add API keys file")
+	port := flag.String("port", "80", "Add API keys file")
 
 	flag.Parse()
 
