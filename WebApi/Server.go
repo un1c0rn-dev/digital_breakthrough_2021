@@ -164,8 +164,8 @@ func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	if r.Method != http.MethodGet {
-		http.Error(w, InvalidRequestMethodGet, http.StatusMethodNotAllowed)
+	if r.Method != http.MethodPost {
+		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
 		return
 	}
 
