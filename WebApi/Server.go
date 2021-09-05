@@ -253,7 +253,7 @@ func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 
 func handleMailTemplate(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println(r.Method + " /status/tasks " + r.RemoteAddr)
+	fmt.Println(r.Method + " /mail/from_template " + r.RemoteAddr)
 
 	if !setupCORS(&w, r) {
 		return
