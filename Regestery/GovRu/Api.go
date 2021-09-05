@@ -504,7 +504,7 @@ func getDistributors(regn string) ([]distributor, error) {
 						Email:            zayavka.IP.Email,
 						Phone:            zayavka.IP.Phone,
 						Inn:              zayavka.IP.INNFL,
-						Cost:             zayavka.Summa,
+						Cost:             int(zakupka.PriceStart.Summa),
 					}
 				} else if len(zayavka.YuL.Inn) > 0 {
 					d = distributor{
@@ -513,7 +513,7 @@ func getDistributors(regn string) ([]distributor, error) {
 						Email:            zayavka.YuL.Email,
 						Phone:            zayavka.YuL.Phone,
 						Inn:              zayavka.YuL.Inn,
-						Cost:             zayavka.Summa,
+						Cost:             int(zakupka.PriceStart.Summa),
 					}
 				} else {
 					continue
@@ -668,7 +668,7 @@ func Search(query SearchQuery, task *Tasks.Task) {
 			log.Print("Cannot check unscrupulous, inn: ", distr.Inn)
 		}
 
-		result.CompanyName = distr.ContactName
+		result.CompanyName = distr.OrganizationName
 		result.ContactPersons = append(result.ContactPersons, distr.ContactName)
 		result.Emails = append(result.Emails, distr.Email)
 		result.Phones = append(result.Phones, distr.Phone)
