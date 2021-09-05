@@ -38,3 +38,9 @@ type ResponseTaskStatus struct {
 type ResponseCollectData struct {
 	Data map[string][]Tasks.TaskResult `json:"data"`
 }
+
+type MailTemplate struct {
+	FillResults []Tasks.TaskResult `json:"fill_results"`
+	Template    string             `json:"template"`
+	Product     string             `json:"product"`
+}

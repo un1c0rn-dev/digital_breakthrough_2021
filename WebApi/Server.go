@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 	"unicorn.dev.web-scrap/Regestery/GovRu"
 	"unicorn.dev.web-scrap/Tasks"
@@ -24,11 +26,12 @@ type apiKeysFile struct {
 }
 
 type ServerConfiguration struct {
-	UseTls      bool
-	TlsCrtFile  string
-	TlsKeyFile  string
-	ApiKeysFile string
-	Port        string
+	UseTls       bool
+	TlsCrtFile   string
+	TlsKeyFile   string
+	ApiKeysFile  string
+	Port         string
+	TemplatesDir string
 }
 
 func setupCORS(w *http.ResponseWriter, r *http.Request) bool {
@@ -248,6 +251,81 @@ func handleDataCollect(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, string(jsonResponse), http.StatusOK)
 }
 
+func handleMailTemplate(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println(r.Method + " /status/tasks " + r.RemoteAddr)
+
+	if !setupCORS(&w, r) {
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, InvalidRequestMethodPost, http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, UnableToGetRequestBody, http.StatusInternalServerError)
+		return
+	}
+
+	var templateMailRequest MailTemplate
+	err = json.Unmarshal(body, &templateMailRequest)
+	if err != nil {
+		http.Error(w, InvalidRequestData, http.StatusBadRequest)
+		return
+	}
+
+	filePath := serverConfig.TemplatesDir + "/" + templateMailRequest.Template + ".template"
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		http.Error(w, "Template doesn't exist", http.StatusBadRequest)
+		return
+	}
+
+	file, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		http.Error(w, "Can't read template", http.StatusInternalServerError)
+		return
+	}
+
+	response := make(map[string]string)
+	for _, fillResult := range templateMailRequest.FillResults {
+		template := string(file)
+		if len(fillResult.ContactPersons) == 0 {
+			fmt.Errorf("Empty persons")
+			continue
+		}
+
+		if len(fillResult.Emails) == 0 {
+			fmt.Errorf("Empty mails")
+			continue
+		}
+
+		person := fillResult.ContactPersons[0]
+		personNameParts := strings.Split(person, " ")
+		name := personNameParts[0]
+		surname := personNameParts[1]
+
+		template = strings.Replace(template, "{{имя}}", name, -1)
+		template = strings.Replace(template, "{{фамилия}}", surname, -1)
+		template = strings.Replace(template, "{{год}}", "2017", -1)
+		template = strings.Replace(template, "{{товар}}", templateMailRequest.Product, -1)
+		template = strings.Replace(template, "{{цена}}", fillResult.AverageCapitalization, -1)
+
+		log.Println("Template render will be sent to " + fillResult.Emails[0])
+		log.Println("Text: " + template)
+
+		response[fillResult.Emails[0]] = template
+	}
+
+	jsonResponse, _ := json.Marshal(response)
+	http.Error(w, string(jsonResponse), http.StatusOK)
+}
+
+var serverConfig ServerConfiguration
+
 func StartServer(configuration *ServerConfiguration) {
 
 	var err error
@@ -260,6 +338,7 @@ func StartServer(configuration *ServerConfiguration) {
 	http.HandleFunc("/search", handleSearch)
 	http.HandleFunc("/status/tasks", handleTasksStatus)
 	http.HandleFunc("/data/collect", handleDataCollect)
+	http.HandleFunc("/mail/from_template", handleMailTemplate)
 
 	if len(configuration.ApiKeysFile) > 0 {
 		value, err := ioutil.ReadFile(configuration.ApiKeysFile)
@@ -286,6 +365,8 @@ func StartServer(configuration *ServerConfiguration) {
 	}
 
 	InitContext()
+
+	serverConfig = *configuration
 
 	if configuration.UseTls {
 		err = s.ListenAndServeTLS(configuration.TlsCrtFile, configuration.TlsKeyFile)
