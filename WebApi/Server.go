@@ -310,7 +310,7 @@ func handleMailTemplate(w http.ResponseWriter, r *http.Request) {
 
 		template = strings.Replace(template, "{{имя}}", name, -1)
 		template = strings.Replace(template, "{{фамилия}}", surname, -1)
-		template = strings.Replace(template, "{{год}}", "2017", -1)
+		template = strings.Replace(template, "{{год}}", "2021", -1)
 		template = strings.Replace(template, "{{товар}}", templateMailRequest.Product, -1)
 		template = strings.Replace(template, "{{цена}}", fillResult.AverageCapitalization, -1)
 
