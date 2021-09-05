@@ -304,12 +304,19 @@ func handleMailTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 
 		person := fillResult.ContactPersons[0]
-		personNameParts := strings.Split(person, " ")
-		name := personNameParts[0]
-		surname := personNameParts[1]
+		if len(person) == 0 {
+			fmt.Errorf("Empty persons")
+			template = strings.Replace(template, "{{имя}}", fillResult.CompanyName, -1)
+			template = strings.Replace(template, "{{фамилия}}", "", -1)
+		} else {
+			personNameParts := strings.Split(person, " ")
+			name := personNameParts[0]
+			surname := personNameParts[1]
 
-		template = strings.Replace(template, "{{имя}}", name, -1)
-		template = strings.Replace(template, "{{фамилия}}", surname, -1)
+			template = strings.Replace(template, "{{имя}}", name, -1)
+			template = strings.Replace(template, "{{фамилия}}", surname, -1)
+		}
+
 		template = strings.Replace(template, "{{год}}", "2021", -1)
 		template = strings.Replace(template, "{{товар}}", templateMailRequest.Product, -1)
 		template = strings.Replace(template, "{{цена}}", fillResult.AverageCapitalization, -1)

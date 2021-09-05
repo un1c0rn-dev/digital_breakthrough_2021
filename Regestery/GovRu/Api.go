@@ -496,6 +496,7 @@ func getDistributors(regn string) ([]distributor, error) {
 
 		for _, zakupka := range responseJson {
 			for _, zayavka := range zakupka.Protocol.Requests {
+
 				var d distributor
 				if len(zayavka.IP.INNFL) > 0 {
 					d = distributor{
@@ -515,6 +516,7 @@ func getDistributors(regn string) ([]distributor, error) {
 						Inn:              zayavka.YuL.Inn,
 						Cost:             int(zakupka.PriceStart.Summa),
 					}
+
 				} else {
 					continue
 				}
