@@ -93,10 +93,10 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 		govRuSearchQueru.MaxRequests = searchRequest.MaxRequests
 	}
 	if searchRequest.MinPrice > 0 {
-		govRuSearchQueru.MaxRequests = searchRequest.MinPrice
+		govRuSearchQueru.MinPrice = searchRequest.MinPrice
 	}
-	if searchRequest.MaxRequests > 0 {
-		govRuSearchQueru.MaxRequests = searchRequest.MaxPrice
+	if searchRequest.MaxPrice > 0 {
+		govRuSearchQueru.MaxPrice = searchRequest.MaxPrice
 	}
 	if len(searchRequest.Etp) > 0 {
 		govRuSearchQueru.Etp = searchRequest.Etp

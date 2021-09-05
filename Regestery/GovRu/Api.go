@@ -623,6 +623,7 @@ func Search(query SearchQuery, task *Tasks.Task) {
 
 	task.Progress = "Собираем данные..."
 	distributors := make([]distributor, 0)
+
 	for {
 		var responseJson map[string]map[string]regRec
 		if err := dec.Decode(&responseJson); err == io.EOF {
@@ -638,9 +639,12 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		i := 0
 		percentPart := 80.0 / float64(query.MaxRequests)
 		for _, regKeys := range responseJson {
-		z:
 			for zakup_regn, _ := range regKeys {
 				task.ProgressPercents += percentPart
+				if i >= query.MaxRequests {
+					goto searchBest
+				}
+				i++
 				log.Print("Retrieving distributor information, regn: ", zakup_regn)
 				distrs, err := getDistributors(zakup_regn)
 				if err != nil {
@@ -649,16 +653,13 @@ func Search(query SearchQuery, task *Tasks.Task) {
 				}
 
 				for _, distrib := range distrs {
-					if i >= query.MaxRequests {
-						break z
-					}
-					i++
 					distributors = append(distributors, distrib)
 				}
 			}
 		}
 	}
 
+searchBest:
 	task.Progress = "Ищем лучших поставщиков..."
 	percentPart := 20 / float64(len(distributors))
 	for _, distr := range distributors {
@@ -666,6 +667,7 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		log.Print("Checking for unscrupulous, inn: ", distr.Inn)
 		err := CheckUnscrupulousOrganisation(distr.Inn, &result)
 		if err != nil {
+			result.Reputation = Tasks.TaskResultReputationUnk
 			log.Print("Cannot check unscrupulous, inn: ", distr.Inn)
 		}
 
