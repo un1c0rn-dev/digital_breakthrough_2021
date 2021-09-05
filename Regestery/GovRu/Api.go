@@ -262,7 +262,7 @@ type Customer struct {
 	Email        string `json:"Email,omitempty"`
 }
 type StartCost struct {
-	Summa        float64 `json:"Summa"`
+	Summa        float64 `json:"Сумма"`
 	CurrencyCode string  `json:"ВалютаКод"`
 	CurrencyName string  `json:"ВалютаНаим"`
 }
