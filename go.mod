@@ -3,6 +3,7 @@ module unicorn.dev.web-scrap
 go 1.16
 
 require (
+	github.com/gocolly/colly/v2 v2.0.1
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/jdkato/prose/v2 v2.0.0
