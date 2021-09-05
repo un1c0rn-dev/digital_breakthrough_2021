@@ -69,5 +69,9 @@
 }
 
 .ButtonOverride {
-
+  min-height: 40px;
+  &:hover:enabled {
+    background-color: var(--base-blue);
+    color: var(--base-white);
+  }
 }

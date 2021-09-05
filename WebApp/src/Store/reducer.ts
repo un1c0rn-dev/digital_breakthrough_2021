@@ -21,6 +21,7 @@ export interface TaskStatusEntity {
 
 export interface IMainStore {
   pending: boolean;
+  pendingText: string;
   error: null | Error;
   results: ResultEntity[];
   taskIds: number[];
@@ -29,6 +30,7 @@ export interface IMainStore {
 
 export const initialState: IMainStore = {
   pending: false,
+  pendingText: 'Запускаем поиск...',
   error: null,
   results: [],
   taskIds: [],
@@ -87,6 +89,13 @@ export const reducer = (state: IMainStore = initialState, action: any) => {
       return {
         ...state,
         searchQuery: payload,
+      };
+    }
+
+    case EActionTypes.SET_PROGRESS_TEXT: {
+      return {
+        ...state,
+        pendingText: payload,
       };
     }
 

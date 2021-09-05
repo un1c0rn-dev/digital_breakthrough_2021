@@ -17,8 +17,8 @@ export const SearchResults = ({ results }: any) => {
 
   const searchQuery = useSelector(searchQuerySelector);
   const mailMessage = useSelector(mailSelector);
-  const mailAddress = Object.keys(mailMessage)[0];
-  const mailText = Object.values(mailMessage)[0];
+  const mailAddress = mailMessage ? Object.keys(mailMessage)[0] : '';
+  const mailText = mailMessage ? Object.values(mailMessage)[0] : '';
   const [openDialog, setOpenDialog] = React.useState<boolean>(false);
   const determineReputation = (reputation: string) => {
     switch (reputation) {

@@ -17,6 +17,8 @@ export const fetchTaskStatus = () => async (dispatch: any, getState: any) => {
   try {
     const taskIds = getState().taskIds;
     const res = await api.getTaskStatus(taskIds);
+    console.log(res);
+    dispatch({ type: EActionTypes.SET_PROGRESS_TEXT, payload: res[0].progress });
 
     if (typeof res !== 'string') {
       if (res.every((item: any) => item.status === 'done')) {
