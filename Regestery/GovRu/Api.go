@@ -638,12 +638,9 @@ func Search(query SearchQuery, task *Tasks.Task) {
 		i := 0
 		percentPart := 80.0 / float64(query.MaxRequests)
 		for _, regKeys := range responseJson {
+		z:
 			for zakup_regn, _ := range regKeys {
 				task.ProgressPercents += percentPart
-				if i > query.MaxRequests {
-					break
-				}
-				i++
 				log.Print("Retrieving distributor information, regn: ", zakup_regn)
 				distrs, err := getDistributors(zakup_regn)
 				if err != nil {
@@ -652,6 +649,10 @@ func Search(query SearchQuery, task *Tasks.Task) {
 				}
 
 				for _, distrib := range distrs {
+					if i >= query.MaxRequests {
+						break z
+					}
+					i++
 					distributors = append(distributors, distrib)
 				}
 			}
