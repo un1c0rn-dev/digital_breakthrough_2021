@@ -518,6 +518,10 @@ func getDistributors(regn string) ([]distributor, error) {
 				} else {
 					continue
 				}
+
+				if d.Cost == 0 {
+					d.Cost = zayavka.Summa
+				}
 				distributors = append(distributors, d)
 			}
 		}
