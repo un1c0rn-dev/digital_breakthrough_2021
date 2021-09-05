@@ -397,7 +397,7 @@ func rpnIsActive(rpnData *rpn) RpnRecord {
 }
 
 func CheckUnscrupulousOrganisation(inn string, result *Tasks.TaskResult) error {
-	reputation := Tasks.TaskResultReputationGood
+	reputation := Tasks.TaskResultReputationUnk
 	defer func() {
 		result.Reputation = reputation
 	}()
@@ -426,8 +426,11 @@ func CheckUnscrupulousOrganisation(inn string, result *Tasks.TaskResult) error {
 		var responseJson map[string]map[string]rpn
 		if err := dec.Decode(&responseJson); err == io.EOF {
 			break
-		} else if err != nil {
+		} else if err != nil && len(responseBody) > 20 {
 			return err
+		} else if err != nil {
+			reputation = Tasks.TaskResultReputationGood
+			return nil
 		}
 
 		for innKey, rpns := range responseJson {
@@ -445,6 +448,7 @@ func CheckUnscrupulousOrganisation(inn string, result *Tasks.TaskResult) error {
 				}
 			}
 
+			reputation = Tasks.TaskResultReputationGood
 			return nil
 		}
 	}
