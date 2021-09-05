@@ -1,0 +1,116 @@
+.Search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+
+  background-color: var(--base-blue);
+
+  .SearchInput {
+    width: 350px;
+    height: 36px;
+    padding: 5px;
+
+    border-radius: 4px;
+    border: none;
+  }
+
+  .SearchInputOverride {
+    color: var(--base-white);
+  }
+
+  .SearchFilterLabel {
+    color: var(--base-white);
+  }
+
+  .SearchSelectOverride {
+    color: var(--base-white);
+    border-bottom: 2px solid var(--base-white);
+  }
+
+  .formControl {
+    width: 200px;
+  }
+
+  .SearchFilters {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 24px;
+    row-gap: 24px;
+    justify-content: center;
+
+    margin-bottom: 50px;
+
+    .SearchFilterInput {
+      width: 200px;
+      height: 36px;
+      padding: 5px;
+
+      margin-right: 24px;
+
+      border-radius: 4px;
+      border: none;
+    }
+  }
+
+  .SearchContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+    .SearchTitle {
+      margin-bottom: 24px;
+      color: var(--base-white);
+    }
+
+    .SearchInputContainer {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+
+      .SearchButtons {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+
+        .SearchButton {
+          height: 36px;
+          width: 100px;
+          padding: 0 15px;
+
+          margin-right: 15px;
+        }
+
+        .FilterButton {
+          height: 36px;
+          width: 190px;
+          padding: 0 15px;
+        }
+      }
+    }
+
+    .SearchInputBorderOverride {
+      border-bottom: 2px solid var(--base-white);
+    }
+
+    .LoadingContainer {
+      display: flex;
+      flex-direction: column;
+      color: white;
+
+      justify-content: center;
+      align-items: center;
+
+      margin: 12px 0;
+
+      .LoadingPreloader {
+        color: white;
+      }
+    }
+  }
+}

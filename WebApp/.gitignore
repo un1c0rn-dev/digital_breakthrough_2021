@@ -1,0 +1,14 @@
+/node_modules
+.idea
+.env
+.env.production
+smtp.config.json
+**/.DS_Store
+*.iml
+/nbproject
+/upload
+/dist
+/mockup/build
+
+/package/out
+!/package/out/.keep
